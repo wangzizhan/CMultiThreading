@@ -10,7 +10,7 @@
 #include "wrap.h"
 
 #define MAXLINE 80
-#define SERV_PORT 8100
+#define SERV_PORT 8888
 
 int main(int argc, char *argv[]) 
 {
