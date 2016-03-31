@@ -23,6 +23,9 @@ int main(void)
 
 	//listenfd = socket(AF_INET, SOCK_STREAM, 0); //ipv4 tcp 
 	listenfd = Socket(AF_INET, SOCK_STREAM, 0); //ipv4 tcp 
+
+	int opt = 1;
+	setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
@@ -57,20 +60,30 @@ int main(void)
 	while (1) {
 		cliaddr_len = sizeof(cliaddr);
 		connfd = Accept(listenfd, (struct sockaddr *)&cliaddr, &cliaddr_len);
-		
-		while (1) {
-			n = Read(connfd, buf, MAXLINE);
-			if (n == 0) {
-				printf("the other size has been close.\n");
-				break;
-			} 
-			inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str));
-			printf("received from %s at PORT %d\n", str, ntohs(cliaddr.sin_port));
-			for (i = 0; i < n; i++) 
-				buf[i] = toupper(buf[i]);
-			Write(connfd, buf, n);
-		}
-		Close(connfd);
+		n = fork();
+
+		if (n == -1) {
+			perror("call to fork");
+			exit(1);
+		} else if (n == 0) {
+			Close(listenfd);
+			while (1) {
+				n = Read(connfd, buf, MAXLINE);
+				if (n == 0) {
+					printf("the other size has been close.\n");
+					break;
+				} 
+				inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str));
+				printf("received from %s at PORT %d\n", str, ntohs(cliaddr.sin_port));
+				for (i = 0; i < n; i++) 
+					buf[i] = toupper(buf[i]);
+				Write(connfd, buf, n);
+			}
+			close(connfd);
+			exit(0);
+		} else 
+			Close(connfd);
+
 	}	
 }
 
