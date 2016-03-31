@@ -36,21 +36,40 @@ int main(void)
 	Listen(listenfd, 20);
 	
 	printf("Accepting connections...\n");			
+	//while (1) {
+	//	cliaddr_len = sizeof(cliaddr);
+	//	//connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &cliaddr_len);
+	//	connfd = Accept(listenfd, (struct sockaddr *)&cliaddr, &cliaddr_len);
+	//	
+	//	//n = read(connfd, buf, MAXLINE);
+	//	n = Read(connfd, buf, MAXLINE);
+	//	
+	//	inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)); //gc 
+	//	printf("received from %s at PORT %d\n", str, ntohs(cliaddr.sin_port));
+	//	for (i = 0; i < n; i++) 
+	//		buf[i] = toupper(buf[i]);
+	//	//write(connfd, buf, n);
+	//	Write(connfd, buf, n);
+	//	//close(connfd);
+	//	Close(connfd);
+	//}
+
 	while (1) {
 		cliaddr_len = sizeof(cliaddr);
-		//connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &cliaddr_len);
 		connfd = Accept(listenfd, (struct sockaddr *)&cliaddr, &cliaddr_len);
 		
-		//n = read(connfd, buf, MAXLINE);
-		n = Read(connfd, buf, MAXLINE);
-		
-		inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)); //gc 
-		printf("received from %s at PORT %d\n", str, ntohs(cliaddr.sin_port));
-		for (i = 0; i < n; i++) 
-			buf[i] = toupper(buf[i]);
-		//write(connfd, buf, n);
-		Write(connfd, buf, n);
-		//close(connfd);
+		while (1) {
+			n = Read(connfd, buf, MAXLINE);
+			if (n == 0) {
+				printf("the other size has been close.\n");
+				break;
+			} 
+			inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str));
+			printf("received from %s at PORT %d\n", str, ntohs(cliaddr.sin_port));
+			for (i = 0; i < n; i++) 
+				buf[i] = toupper(buf[i]);
+			Write(connfd, buf, n);
+		}
 		Close(connfd);
 	}	
 }

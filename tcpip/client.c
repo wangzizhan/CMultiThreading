@@ -17,13 +17,13 @@ int main(int argc, char *argv[])
 	struct sockaddr_in servaddr;
 	char buf[MAXLINE]; //store characters
 	int sockfd, n;
-	char *str;
+	//char *str;
 
-	if (argc != 2) {
-		fputs("usage: ./client message\n", stderr);
-		exit(-1);
-	}
-	str = argv[1];
+	//if (argc != 2) {
+	//	fputs("usage: ./client message\n", stderr);
+	//	exit(-1);
+	//}
+	//str = argv[1];
 
 	//sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	sockfd = Socket(AF_INET, SOCK_STREAM, 0);
@@ -36,19 +36,27 @@ int main(int argc, char *argv[])
 	//connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
 	Connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
 	
-	//while(1);
-	
-	//write(sockfd, str, strlen(str));
-	Write(sockfd, str, strlen(str));
-	
-	//n = read(sockfd, buf, MAXLINE);
-	n = Read(sockfd, buf, MAXLINE);
-	printf("Response from server:\n");
-	//write(STDOUT_FILENO, buf, n);
-	Write(STDOUT_FILENO, buf, n);
-	
-	printf("\n");	
+	////while(1);
+	//
+	////write(sockfd, str, strlen(str));
+	//Write(sockfd, str, strlen(str));
+	//
+	////n = read(sockfd, buf, MAXLINE);
+	//n = Read(sockfd, buf, MAXLINE);
+	//printf("Response from server:\n");
+	////write(STDOUT_FILENO, buf, n);
+	//Write(STDOUT_FILENO, buf, n);
+	//
+	//printf("\n");	
 	//close(sockfd);
+	while (fgets(buf, MAXLINE, stdin) != NULL) {
+		Write(sockfd, buf, strlen(buf));
+		n = read(sockfd, buf, MAXLINE);
+		if (n == 0) 
+			printf("the other side has been closed.\n");
+		else 
+			Write(STDOUT_FILENO, buf, n);
+	}
 	Close(sockfd);
 	return 0;
 } 
